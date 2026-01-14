@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade Calculator</title>
+  <style>
+    :root{
+      --bg:#f7f8fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:#e5e7eb;
+      --line2:#eef2f7;
+      --accent:#4672cf;
+      --accent-weak:rgba(37,99,235,.10);
+      --green:#16a34a;
+      --green-weak:rgba(22,163,74,.10);
+      --red:#bd5757;
+      --red-weak:rgba(220,38,38,.10);
+      --shadow:0 14px 40px rgba(15, 23, 42, .08);
+      --radius:18px;
+    }
+
+    *{ box-sizing:border-box; }
+
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text);
+      background:var(--bg);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+
+    .wrap{ width:min(1520px, 100%); display:block; }
+    .header{ text-align:center; margin-bottom:18px; }
+
+    h1{ margin:0; font-size:30px; letter-spacing:-0.5px; line-height:1.1; }
+
+    .sub{
+      margin:10px auto 0;
+      color:var(--muted);
+      max-width:86ch;
+      line-height:1.55;
+      font-size:14px;
+    }
+
+    .topbar{
+      margin-top:16px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .note{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      color:var(--muted);
+      font-size:13px;
+      padding:10px 14px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      white-space:nowrap;
+    }
+    .dot{ width:8px; height:8px; border-radius:99px; background:#f59e0b; }
+
+    button{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      padding:12px 16px;
+      border-radius:14px;
+      cursor:pointer;
+      font-weight:650;
+      font-size:14px;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition: background .15s ease, border-color .15s ease, transform .05s ease;
+    }
+    button:active{ transform: translateY(1px); }
+    button:hover{ background:#fbfdff; }
+
+    .primary{ border-color: rgba(37,99,235,.25); background: var(--accent-weak); color:#4672cf; }
+    .primary:hover{ background: rgba(37,99,235,.14); }
+
+    .danger{ border-color: rgba(220,38,38,.25); background: var(--red-weak); color: var(--red); }
+    .danger:hover{ background: rgba(220,38,38,.14); }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      width:100%;
+      display:block;
+    }
+
+    .section{
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .section h2{ margin:0; font-size:14px; letter-spacing:-.1px; }
+    .section .muted{ color:var(--muted); font-size:12px; line-height:1.45; margin-top:4px; }
+    .section .right{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    .assessments{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      padding:12px 16px 16px;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      width:100%;
+    }
+
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      min-width: 260px;
+      flex: 0 0 auto;
+    }
+
+    input{
+      width:100%;
+      padding:10px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+    }
+
+    input::placeholder{ color:#94a3b8; }
+
+    input:focus{
+      border-color: rgba(37,99,235,.45);
+      box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    .iconbtn{
+      width:38px; height:38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#fff;
+      cursor:pointer;
+      transition: background .15s ease;
+      flex: 0 0 auto;
+    }
+    .iconbtn:hover{ background:#f8fafc; }
+
+    .table-wrap{
+      overflow:auto;
+      max-height: 66vh;
+      width:100%;
+      display:block;
+    }
+
+    table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      font-variant-numeric: tabular-nums;
+      min-width: 1200px;
+    }
+
+    thead th{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #fff;
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.24px;
+      white-space:nowrap;
+    }
+
+    tbody td{
+      padding:10px 12px;
+      border-bottom:1px solid var(--line2);
+      vertical-align:middle;
+      background:#fff;
+    }
+
+    tbody tr:nth-child(2n) td{ background:#fcfdff; }
+
+    .num{ text-align:right; }
+    .num input{ text-align:right; }
+    .center{ text-align:center; }
+
+    .pillbar{
+      display:flex;
+      gap:10px;
+      padding:14px;
+      border-top:1px solid var(--line);
+      background:#fafbff;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:baseline;
+      gap:10px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-weight:650;
+      font-size:13px;
+      color:var(--text);
+      white-space:nowrap;
+    }
+    .pill b{ font-size:16px; font-weight:750; }
+
+    .pill.raw{ border-color: rgba(37,99,235,.22); background: rgba(37,99,235,.06); }
+    .pill.rounded{ border-color: rgba(22,163,74,.22); background: rgba(22,163,74,.06); }
+
+    .actions-cell{ width:140px; }
+    .row-actions{ display:flex; gap:8px; justify-content:flex-end; }
+
+    .gpa-info{
+      padding:14px 16px 16px;
+      border-top:1px solid var(--line);
+      background:#fff;
+    }
+    .gpa-info-title{
+      font-weight:750;
+      font-size:13px;
+      letter-spacing:-.1px;
+      margin-bottom:8px;
+    }
+    .gpa-info-body{
+      color:var(--text);
+      font-size:13px;
+      line-height:1.55;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      max-width: none;
+      margin: 0;
+    }
+    .mono{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12.5px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      padding:8px 10px;
+      border-radius:12px;
+      overflow:auto;
+    }
+
+    .foot{ text-align:center; margin-top:12px; color:var(--muted); font-size:12px; }
+
+    /* Column sizing */
+    col.c-class{width: 220px;}
+    col.c-score{width: 150px;}
+    col.c-weight{width: 110px;}
+    col.c-out{width: 160px;}
+    col.c-actions{width: 140px;}
+
+    @media (max-width: 920px){
+      body{ padding:18px; }
+      h1{ font-size:24px; }
+      .chip{ min-width: 210px; }
+      table{ min-width: 980px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Grade Calculator</h1>
+      <div class="sub">Add as many classes or assessment columns as you'd like to calculate your weighted grade average. Your entries are <b>saved locally in your browser</b>, so they'll still be here if you refresh or come back later.</div>
+      <div class="topbar">
+        <button id="demoBtn">Load demo</button>
+        <div class="note"><span class="dot"></span>Leave a score blank to exclude it from that row's average.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section">
+        <div>
+          <h2>Class rows</h2>
+          <div class="muted">Each row is one class. Add or reset class rows here.</div>
+        </div>
+        <div class="right">
+          <button id="addRowBtn" class="primary">+ Add class</button>
+          <button id="resetBtn">Reset classes</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div>
+          <h2>Assessment columns</h2>
+          <div class="muted">Rename these to anything (e.g., “Midterm”, “Quiz”, “IA Draft”). Add or remove columns anytime.</div>
+        </div>
+        <div class="right">
+          <button id="addAssessmentBtn" class="primary">+ Add assessment</button>
+          <button id="resetAssessmentsBtn">Reset assessments</button>
+        </div>
+      </div>
+
+      <div class="assessments" id="assessments"></div>
+
+      <div class="table-wrap">
+        <table id="gradesTable">
+          <colgroup id="colgroup"></colgroup>
+          <thead>
+            <tr id="theadRow"></tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pillbar">
+        <span class="pill raw">Raw GPA <b id="rawGpa">–</b></span>
+        <span class="pill rounded">Rounded GPA <b id="roundedGpa">–</b></span>
+        <span class="pill">Total weight <b id="totalWeight">0</b></span>
+      </div>
+
+      <div class="gpa-info" aria-label="GPA calculation explanation">
+        <div class="gpa-info-body">
+          <div><b>Raw GPA</b> is the weighted average of each class's <b>Raw Average</b>:</div>
+          <div class="mono">Raw GPA = Σ(RawAverageᵢ × Weightᵢ) ÷ Σ(Weightᵢ)</div>
+          <div><b>Rounded GPA</b> first rounds each class's raw average to the nearest whole number, then applies the same weighting:</div>
+          <div class="mono">Rounded GPA = Σ(Round(RawAverageᵢ) × Weightᵢ) ÷ Σ(Weightᵢ)</div>
+          <div class="muted">Blank scores are ignored within a class's average. Rows with missing weight don't contribute to GPA.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // ---------- Utilities ----------
+  const uid = () => Math.random().toString(36).slice(2, 10);
+
+  const toNumberOrNull = (v) => {
+    if (v === null || v === undefined) return null;
+    const s = String(v).trim();
+    if (!s) return null;
+    const n = Number(s.replace(',', '.'));
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const averageIgnoringBlanks = (nums) => {
+    const filtered = nums.filter((x) => Number.isFinite(x));
+    if (filtered.length === 0) return null;
+    return filtered.reduce((a,b)=>a+b,0) / filtered.length;
+  };
+
+  const format = (n, digits=8) => {
+    if (n === null || n === undefined || !Number.isFinite(n)) return '–';
+    const s = n.toFixed(digits);
+    return s.replace(/\.0+$/,'').replace(/(\.[0-9]*?)0+$/,'$1');
+  };
+
+  // ---------- DOM ----------
+  const tbody = document.getElementById('tbody');
+  const theadRow = document.getElementById('theadRow');
+  const colgroup = document.getElementById('colgroup');
+  const assessmentsEl = document.getElementById('assessments');
+
+  const rawGpaEl = document.getElementById('rawGpa');
+  const roundedGpaEl = document.getElementById('roundedGpa');
+  const totalWeightEl = document.getElementById('totalWeight');
+
+  // ---------- State ----------
+  const STORAGE_KEY = 'weighted-grade-calculator:v3';
+
+  const defaultAssessments = () => ([
+    { id: uid(), name: 'Exam 1' },
+    { id: uid(), name: 'Exam 2' },
+    { id: uid(), name: 'Performance 1' },
+    { id: uid(), name: 'Performance 2' },
+    { id: uid(), name: 'Performance 3' },
+  ]);
+
+  const defaultRow = (assessments) => ({
+    cls: '',
+    w: '',
+    scores: Object.fromEntries(assessments.map(a => [a.id, '']))
+  });
+
+  let assessments = defaultAssessments();
+  let rows = [defaultRow(assessments)];
+
+  function ensureRowShape(){
+    const ids = new Set(assessments.map(a => a.id));
+    rows = rows.map(r => {
+      const nextScores = { ...(r.scores || {}) };
+      for (const a of assessments) {
+        if (!(a.id in nextScores)) nextScores[a.id] = '';
+      }
+      for (const key of Object.keys(nextScores)) {
+        if (!ids.has(key)) delete nextScores[key];
+      }
+      return { ...r, scores: nextScores };
+    });
+  }
+
+  // ---------- Persistence ----------
+  function persist(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify({ assessments, rows })); } catch {}
+  }
+
+  function restore(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.assessments) && Array.isArray(parsed.rows)) {
+        assessments = parsed.assessments;
+        rows = parsed.rows;
+        if (!assessments.length) assessments = defaultAssessments();
+        if (!rows.length) rows = [defaultRow(assessments)];
+        ensureRowShape();
+      }
+    } catch {}
+  }
+
+  // ---------- Rendering ----------
+  function makeCellInput(value, placeholder=''){
+    const input = document.createElement('input');
+    input.value = value ?? '';
+    input.placeholder = placeholder;
+    input.autocomplete = 'off';
+    return input;
+  }
+
+  function renderAssessments(){
+    assessmentsEl.innerHTML = '';
+
+    assessments.forEach((a, idx) => {
+      const chip = document.createElement('div');
+      chip.className = 'chip';
+
+      const inp = makeCellInput(a.name, 'Assessment name');
+      inp.addEventListener('input', (e) => {
+        assessments[idx].name = e.target.value;
+        persist();
+        renderTableChrome();
+      });
+
+      const del = document.createElement('button');
+      del.className = 'iconbtn';
+      del.title = 'Remove assessment column';
+      del.textContent = '✕';
+      del.addEventListener('click', () => {
+        if (assessments.length <= 1) {
+          alert('Keep at least 1 assessment column.');
+          return;
+        }
+        const removed = assessments[idx];
+        assessments.splice(idx, 1);
+        rows = rows.map(r => {
+          const next = { ...(r.scores || {}) };
+          delete next[removed.id];
+          return { ...r, scores: next };
+        });
+        persist();
+        render();
+      });
+
+      chip.appendChild(inp);
+      chip.appendChild(del);
+      assessmentsEl.appendChild(chip);
+    });
+  }
+
+  function renderTableChrome(){
+    colgroup.innerHTML = '';
+
+    const mkCol = (cls) => { const c = document.createElement('col'); c.className = cls; return c; };
+
+    colgroup.appendChild(mkCol('c-class'));
+    assessments.forEach(() => colgroup.appendChild(mkCol('c-score')));
+    colgroup.appendChild(mkCol('c-weight'));
+    colgroup.appendChild(mkCol('c-out'));
+    colgroup.appendChild(mkCol('c-out'));
+    colgroup.appendChild(mkCol('c-actions'));
+
+    theadRow.innerHTML = '';
+    const th = (text, cls='') => { const el = document.createElement('th'); el.textContent = text; if (cls) el.className = cls; return el; };
+
+    theadRow.appendChild(th('Class'));
+    assessments.forEach(a => theadRow.appendChild(th(a.name || 'Assessment', 'num')));
+    theadRow.appendChild(th('Weight', 'num'));
+    theadRow.appendChild(th('Raw Average', 'num'));
+    theadRow.appendChild(th('Rounded Average', 'num'));
+    theadRow.appendChild(th('Actions', 'center'));
+  }
+
+  function renderRows(){
+    tbody.innerHTML = '';
+
+    rows.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+
+      // Class
+      const tdClass = document.createElement('td');
+      const inClass = makeCellInput(row.cls, 'e.g., Math HL');
+      inClass.addEventListener('input', (e)=>{ rows[idx].cls = e.target.value; persist(); recalc(); });
+      tdClass.appendChild(inClass);
+      tr.appendChild(tdClass);
+
+      // Scores
+      assessments.forEach(a => {
+        const td = document.createElement('td');
+        td.className = 'num';
+        const inp = makeCellInput((row.scores || {})[a.id] ?? '', '');
+        inp.inputMode = 'decimal';
+        inp.addEventListener('input', (e)=>{
+          rows[idx].scores[a.id] = e.target.value;
+          persist();
+          recalc();
+        });
+        td.appendChild(inp);
+        tr.appendChild(td);
+      });
+
+      // Weight
+      const tdW = document.createElement('td');
+      tdW.className = 'num';
+      const inW = makeCellInput(row.w, '');
+      inW.inputMode = 'decimal';
+      inW.addEventListener('input', (e)=>{ rows[idx].w = e.target.value; persist(); recalc(); });
+      tdW.appendChild(inW);
+      tr.appendChild(tdW);
+
+      // Outputs
+      const tdRaw = document.createElement('td');
+      tdRaw.className = 'num';
+      tdRaw.dataset.role = 'raw';
+      tdRaw.textContent = '–';
+      tr.appendChild(tdRaw);
+
+      const tdRounded = document.createElement('td');
+      tdRounded.className = 'num';
+      tdRounded.dataset.role = 'rounded';
+      tdRounded.textContent = '–';
+      tr.appendChild(tdRounded);
+
+      // Actions
+      const tdAct = document.createElement('td');
+      tdAct.className = 'actions-cell';
+      const wrap = document.createElement('div');
+      wrap.className = 'row-actions';
+
+      const up = document.createElement('button');
+      up.className = 'iconbtn';
+      up.title = 'Move up';
+      up.textContent = '↑';
+      up.disabled = idx === 0;
+      up.addEventListener('click', ()=>{ moveRow(idx, idx-1); });
+
+      const down = document.createElement('button');
+      down.className = 'iconbtn';
+      down.title = 'Move down';
+      down.textContent = '↓';
+      down.disabled = idx === rows.length-1;
+      down.addEventListener('click', ()=>{ moveRow(idx, idx+1); });
+
+      const del = document.createElement('button');
+      del.className = 'iconbtn';
+      del.title = 'Delete row';
+      del.textContent = '✕';
+      del.addEventListener('click', ()=>{ deleteRow(idx); });
+
+      wrap.appendChild(up);
+      wrap.appendChild(down);
+      wrap.appendChild(del);
+      tdAct.appendChild(wrap);
+      tr.appendChild(tdAct);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function render(){
+    ensureRowShape();
+    renderAssessments();
+    renderTableChrome();
+    renderRows();
+    recalc();
+  }
+
+  // ---------- Calculations ----------
+  function recalc(){
+    const trs = Array.from(tbody.querySelectorAll('tr'));
+
+    let weightedRawSum = 0;
+    let weightedRoundedSum = 0;
+    let weightSumForRaw = 0;
+    let weightSumForRounded = 0;
+
+    trs.forEach((tr, idx) => {
+      const r = rows[idx];
+      const nums = assessments
+        .map(a => toNumberOrNull((r.scores || {})[a.id]))
+        .filter(x => x !== null)
+        .map(Number);
+
+      const avg = averageIgnoringBlanks(nums);
+      const rounded = (avg === null) ? null : Math.round(avg);
+      const w = toNumberOrNull(r.w);
+
+      tr.querySelector('[data-role="raw"]').textContent = avg === null ? '–' : format(avg, 8);
+      tr.querySelector('[data-role="rounded"]').textContent = rounded === null ? '–' : String(rounded);
+
+      if (avg !== null && w !== null) {
+        weightedRawSum += avg * w;
+        weightSumForRaw += w;
+      }
+      if (rounded !== null && w !== null) {
+        weightedRoundedSum += rounded * w;
+        weightSumForRounded += w;
+      }
+    });
+
+    const rawGpa = weightSumForRaw ? (weightedRawSum / weightSumForRaw) : null;
+    const roundedGpa = weightSumForRounded ? (weightedRoundedSum / weightSumForRounded) : null;
+
+    rawGpaEl.textContent = rawGpa === null ? '–' : format(rawGpa, 8);
+    roundedGpaEl.textContent = roundedGpa === null ? '–' : format(roundedGpa, 6);
+    totalWeightEl.textContent = String(weightSumForRaw || weightSumForRounded || 0);
+  }
+
+  // ---------- Row ops ----------
+  function addRow(){
+    rows.push(defaultRow(assessments));
+    persist();
+    render();
+  }
+
+  function deleteRow(idx){
+    rows.splice(idx, 1);
+    if (rows.length === 0) rows = [defaultRow(assessments)];
+    persist();
+    render();
+  }
+
+  function moveRow(from, to){
+    if (to < 0 || to >= rows.length) return;
+    const copy = rows.slice();
+    const [item] = copy.splice(from, 1);
+    copy.splice(to, 0, item);
+    rows = copy;
+    persist();
+    render();
+  }
+
+  // ---------- Assessment ops ----------
+  function addAssessment(){
+    const a = { id: uid(), name: `Assessment ${assessments.length + 1}` };
+    assessments.push(a);
+    rows = rows.map(r => ({ ...r, scores: { ...(r.scores || {}), [a.id]: '' } }));
+    persist();
+    render();
+  }
+
+  function resetAssessments(){
+    if (!confirm('Reset assessment columns to the default Exam/Performance set?')) return;
+    const next = defaultAssessments();
+    const nameToOldId = new Map(assessments.map(a => [String(a.name || '').trim().toLowerCase(), a.id]));
+
+    rows = rows.map(r => {
+      const scores = {};
+      for (const a of next) {
+        const key = String(a.name).trim().toLowerCase();
+        const oldId = nameToOldId.get(key);
+        scores[a.id] = oldId ? ((r.scores || {})[oldId] ?? '') : '';
+      }
+      return { ...r, scores };
+    });
+
+    assessments = next;
+    persist();
+    render();
+  }
+
+  // ---------- Demo ----------
+  function loadDemo(){
+    assessments = defaultAssessments();
+    const byName = Object.fromEntries(assessments.map(a => [a.name, a.id]));
+
+    const demoRows = [
+      { cls:'Math HL', w:'7', values:{ 'Exam 1':'100','Exam 2':'100','Performance 1':'100','Performance 2':'98','Performance 3':'' } },
+      { cls:'Physics HL', w:'6', values:{ 'Exam 1':'100','Exam 2':'96','Performance 1':'97','Performance 2':'100','Performance 3':'100' } },
+      { cls:'English HL', w:'4', values:{ 'Exam 1':'85','Exam 2':'97','Performance 1':'97.5','Performance 2':'91.3333','Performance 3':'' } },
+      { cls:'Turkish SL', w:'5', values:{ 'Exam 1':'85.15','Exam 2':'89.45','Performance 1':'95','Performance 2':'95','Performance 3':'' } },
+      { cls:'Economics HL', w:'5', values:{ 'Exam 1':'100','Exam 2':'98','Performance 1':'100','Performance 2':'100','Performance 3':'' } },
+      { cls:'Chemistry SL', w:'5', values:{ 'Exam 1':'89','Exam 2':'99','Performance 1':'98','Performance 2':'100','Performance 3':'100' } },
+      { cls:'TOK', w:'2', values:{ 'Exam 1':'100','Exam 2':'100','Performance 1':'95','Performance 2':'100','Performance 3':'' } },
+      { cls:'Religion', w:'2', values:{ 'Exam 1':'100','Exam 2':'86','Performance 1':'100','Performance 2':'100','Performance 3':'' } },
+      { cls:'History', w:'2', values:{ 'Exam 1':'95','Exam 2':'91','Performance 1':'100','Performance 2':'100','Performance 3':'' } },
+      { cls:'Sports 1', w:'1', values:{ 'Exam 1':'100','Exam 2':'100','Performance 1':'100','Performance 2':'100','Performance 3':'' } },
+      { cls:'Sports 2', w:'1', values:{ 'Exam 1':'100','Exam 2':'100','Performance 1':'100','Performance 2':'100','Performance 3':'' } },
+    ];
+
+    rows = demoRows.map(dr => {
+      const scores = Object.fromEntries(assessments.map(a => [a.id, '']));
+      for (const [name, value] of Object.entries(dr.values)) {
+        const id = byName[name];
+        if (id) scores[id] = value;
+      }
+      return { cls: dr.cls, w: dr.w, scores };
+    });
+
+    persist();
+    render();
+  }
+
+  // ---------- Buttons ----------
+  document.getElementById('addRowBtn').addEventListener('click', addRow);
+  document.getElementById('addAssessmentBtn').addEventListener('click', addAssessment);
+  document.getElementById('resetAssessmentsBtn').addEventListener('click', resetAssessments);
+  document.getElementById('demoBtn').addEventListener('click', loadDemo);
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    if (!confirm('Reset all classes?')) return;
+    rows = [defaultRow(assessments)];
+    persist();
+    render();
+  });
+
+  // Init
+  restore();
+  render();
+</script>
+</body>
+</html>
